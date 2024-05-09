@@ -8,6 +8,6 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
 WORKDIR /var/www/html
 
-RUN chmod -R 777 /var/www/html/
+RUN chmod -R 777 /var/www/html
 
 RUN a2enmod rewrite
