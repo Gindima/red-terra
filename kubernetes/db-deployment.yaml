@@ -20,5 +20,9 @@ spec:
           value: root
         - name: MYSQL_DATABASE
           value: redline
+        - name: DATABASE_USER
+          value: root
+        - name: DATABASE_HOST
+          value: db-service
         ports:
         - containerPort: 3306
