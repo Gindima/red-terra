@@ -7,12 +7,6 @@ pipeline {
     }
     
     stages {
-        stage('Récupérer le code depuis GitHub') {
-            steps {
-                // Récupérer le code depuis GitHub
-                git 'https://github.com/Gindima/alibaba.git'
-            }
-        }
         
         stage('Construction des images Docker') {
             steps {
