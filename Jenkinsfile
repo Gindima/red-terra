@@ -1,52 +1,37 @@
 pipeline {
-  environment {
-    webDockerImageName = "mouhamed888/ligne-rouge-web"
-    dbDockerImageName = "mouhamed888/ligne-rouge-db"
-    webDockerImage = ""
-    dbDockerImage = ""
-    registryCredential = 'docker-credentiel'
-  }
-  agent any
-  stages {
-    stage('Checkout Source') {
-      steps {
-        git 'https://github.com/issa2580/ligne-rouge.git'
-      }
+    agent any
+    
+    environment {
+        DOCKER_USERNAME = "${credentials('docker-hub-creds').username}"
+        DOCKER_PASSWORD = "${credentials('docker-hub-creds').password}"
     }
-    stage('Build Web Docker image') {
-      steps {
-        script {
-          webDockerImage = docker.build webDockerImageName, "-f App.Dockerfile ."
+    
+    stages {
+        stage('Récupérer le code depuis GitHub') {
+            steps {
+                // Récupérer le code depuis GitHub
+                git 'https://github.com/votre-utilisateur/votre-projet.git'
+            }
         }
-      }
-    }
-    stage('Build DB Docker image') {
-      steps {
-        script {
-          dbDockerImage = docker.build dbDockerImageName, "-f Db.Dockerfile ."
+        
+        stage('Construction des images Docker') {
+            steps {
+                // Utiliser Docker Compose pour construire les images Docker
+                sh 'docker-compose up'
+            }
         }
-      }
-    }
-    stage('Pushing Images to Docker Registry') {
-      steps {
-        script {
-          docker.withRegistry('https://registry.hub.docker.com', registryCredential) {
-            webDockerImage.push('latest')
-            dbDockerImage.push('latest')
-          }
+        
+        stage('Build and Push Docker Images') {
+            steps {                
+                // Tag des images
+                sh "docker tag ligne-rouge-web ${DOCKER_USERNAME}/ligne-rouge-web"
+                sh "docker tag ligne-rouge-db ${DOCKER_USERNAME}/ligne-rouge-db"
+                
+                // Connexion à Docker Hub et push des images
+                sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                sh "docker push ${DOCKER_USERNAME}/ligne-rouge-web"
+                sh "docker push ${DOCKER_USERNAME}/ligne-rouge-db"
+            }
         }
-      }
     }
-    stage('Deploying to Kubernetes') {
-      steps {
-        script {
-          kubectl.apply(file: 'deploy.yaml')
-          kubectl.rolloutStatus(deployment: 'ligne-rouge-web')
-          kubectl.rolloutStatus(deployment: 'ligne-rouge-db')
-          kubectl.expose(deployment: 'ligne-rouge-web', port: 8080)
-          kubectl.expose(deployment: 'ligne-rouge-db', port: 5432)
-        }
-      }
-    }
-  }
 }

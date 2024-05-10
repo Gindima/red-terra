@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-deployment
+  name: app-base
 spec:
   replicas: 2
   selector:
@@ -17,12 +17,9 @@ spec:
         image: mouhamed888/ligne-rouge-web
         ports:
         - containerPort: 80
-        volumeMounts:
-        - name: app-volume
-          mountPath: /var/www/html
         env:
         - name: DATABASE_HOST
-          value: db-service
+          value: db
         - name: DATABASE_USER
           value: root
         - name: DATABASE_PASSWORD
