@@ -10,7 +10,7 @@ pipeline {
         stage('Récupérer le code depuis GitHub') {
             steps {
                 // Récupérer le code depuis GitHub
-                git 'https://github.com/votre-utilisateur/votre-projet.git'
+                git 'https://github.com/Gindima/alibaba.git'
             }
         }
         
