@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    dependency 'org.apache.tools.ant:ant:1.10.8'
     stages {
         stage('Checkout') {
             steps {
