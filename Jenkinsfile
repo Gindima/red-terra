@@ -10,7 +10,7 @@ pipeline {
         stage('Exécuter docker-compose up') {
             steps {
                 // Check if docker-compose is available (optional)
-                sh 'docker-compose '
+                sh 'docker-compose up'
             }
         }
     }
