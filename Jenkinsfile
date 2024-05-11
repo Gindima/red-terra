@@ -4,8 +4,7 @@ pipeline {
     stages {
         stage('Récupérer le code depuis GitHub') {
             steps {
-                // Récupérer le code depuis GitHub
-                git 'https://github.com/Gindima/alibaba.git'
+                git url: 'https://github.com/Gindima/alibaba.git', branch: 'main'
             }
         }
         stage('Exécuter docker-compose up') {
