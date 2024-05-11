@@ -8,11 +8,17 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Vérifier le répertoire et les fichiers') {
             steps {
-                sh 'ls'
+                script {
+                    println "Répertoire de travail : ${env.WORKSPACE}"
+
+                    // Lister les fichiers en utilisant la bibliothèque Ant
+                    sh """
+                    ant -lib ${env.JENKINS_HOME}/lib/ant-contrib.jar list fileset(dir: ${env.WORKSPACE})
+                    """
+                }
             }
         }
-
     }
 }
