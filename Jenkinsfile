@@ -10,13 +10,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'docker-compose up'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'docker ps'
+                sh 'ls'
             }
         }
 
