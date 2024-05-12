@@ -32,7 +32,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 // Utilisez kubectl pour déployer sur votre cluster Kubernetes
-                bat 'kubectl apply -f Kubernetes\'
+                dir('kubernetes') {
+                    bat 'kubectl apply -f db-deployment.yaml'
+                    bat 'kubectl apply -f web-deployment.yaml'
+                }
             }
         }
     }
