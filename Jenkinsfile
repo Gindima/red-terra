@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Build and Dockerize Web') {
             steps {
-                bat 'docker build -t ligne-rouge-web -f App.Dockerfile .'
+                powershell 'docker build -t ligne-rouge-web -f App.Dockerfile .'
             }
         }
         stage('Build and Dockerize DB') {
