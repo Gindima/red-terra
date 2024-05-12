@@ -19,10 +19,5 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
-            steps {
-                // Utilisez kubectl pour déployer sur votre cluster Kubernetes
-            }
-        }
     }
 }
