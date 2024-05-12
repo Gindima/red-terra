@@ -11,7 +11,8 @@ pipeline {
             steps {
                 // Check if docker-compose is available (optional)
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    powershell 'docker-compose up -d --username $USERNAME --password $PASSWORD'
+                    powershell "docker login -u $USERNAME -p $PASSWORD"
+                    powershell 'docker-compose up'
                 }
             }
         }
