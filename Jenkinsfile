@@ -1,18 +1,27 @@
 pipeline {
     agent any
-
     stages {
-        stage('Récupérer le code depuis GitHub') {
+        stage('Checkout') {
             steps {
-                git url: 'https://github.com/Gindima/alibaba.git', branch: 'main'
+                checkout scm
             }
         }
-        stage('Exécuter docker-compose up') {
+        stage('Build and Dockerize') {
             steps {
-                // Check if docker-compose is available (optional)
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    powershell 'docker-compose up -d -u $USERNAME -p $PASSWORD'
+                bat 'docker-compose up'
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    bat "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                    bat 'docker-compose push'
                 }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                // Utilisez kubectl pour déployer sur votre cluster Kubernetes
             }
         }
     }
