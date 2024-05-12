@@ -8,16 +8,12 @@ pipeline {
         }
         stage('Build and Dockerize Web') {
             steps {
-                dir('web') {
-                    bat 'docker build -t ligne-rouge-web -f App.Dockerfile .'
-                }
+                bat 'docker build -t ligne-rouge-web -f App.Dockerfile .'
             }
         }
         stage('Build and Dockerize DB') {
             steps {
-                dir('db') {
-                    bat 'docker build -t ligne-rouge-db -f Db.Dockerfile .'
-                }
+                bat 'docker build -t ligne-rouge-db -f Db.Dockerfile .'
             }
         }
         stage('Push to Docker Hub') {
