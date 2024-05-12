@@ -10,9 +10,8 @@ pipeline {
         stage('Exécuter docker-compose up') {
             steps {
                 // Check if docker-compose is available (optional)
-                bat 'docker-compose up'
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    bat 'docker-compose up -d --username $USERNAME --password $PASSWORD'
+                    powershell 'docker-compose up -d --username $USERNAME --password $PASSWORD'
                 }
             }
         }
