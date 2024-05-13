@@ -20,8 +20,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     bat "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-                    bat 'docker push $DOCKER_USERNAME/ligne-rouge-web'
-                    bat 'docker push $DOCKER_USERNAME/ligne-rouge-db'
+                    bat 'docker push ligne-rouge-web'
+                    bat 'docker push ligne-rouge-db'
                 }
             }
         }
