@@ -31,18 +31,17 @@ pipeline {
         
         stage('Build and Push Docker Images') {
             steps {
-                script {
-                    def dockerUsername = env.DOCKER_CREDENTIALS_USR
-                    def dockerPassword = env.DOCKER_CREDENTIALS_PSW
-
-                    // Tag des images
-                    bat "docker tag red-line-web ${dockerUsername}/red-line-web"
-                    bat "docker tag red-line-db ${dockerUsername}/red-line-db"
-                    
-                    // Connexion à Docker Hub et push des images
-                    bat "echo ${dockerPassword} | docker login -u ${dockerUsername} --password-stdin"
-                    bat "docker push ${dockerUsername}/red-line-web"
-                    bat "docker push ${dockerUsername}/red-line-db"
+                withCredentials([usernamePassword(credentialsId: env.DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        // Tag des images
+                        bat "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
+                        bat "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
+                        
+                        // Connexion à Docker Hub et push des images
+                        bat "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                        bat "docker push ${DOCKER_USERNAME}/red-line-web"
+                        bat "docker push ${DOCKER_USERNAME}/red-line-db"
+                    }
                 }
             }
         }
