@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     // Naviguer dans le dossier Kubernetes
-                   bat 'kubectl apply -f kubernetes\'
+                   bat "kubectl apply -f kubernetes\"
                 }
             }
         }
