@@ -56,10 +56,10 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
                     script {
                         // Définit la variable d'environnement KUBECONFIG pour pointer vers le fichier kubeconfig temporaire
-                            bat "kubectl apply -f kubernetes/db-deployment.yaml --validate=false"
-                            bat "kubectl apply -f kubernetes/db-service.yaml --validate=false"
-                            bat "kubectl apply -f kubernetes/web-deployment.yaml --validate=false"
-                            bat "kubectl apply -f kubernetes/web-service.yaml --validate=false"
+                            bat "kubectl apply -f kubernetes/db-deployment.yaml --kubeconfig=%KUBECONFIG_FILE% --validate=false"
+                            bat "kubectl apply -f kubernetes/db-service.yaml --kubeconfig=%KUBECONFIG_FILE% --validate=false"
+                            bat "kubectl apply -f kubernetes/web-deployment.yaml --kubeconfig=%KUBECONFIG_FILE% --validate=false"
+                            bat "kubectl apply -f kubernetes/web-service.yaml --kubeconfig=%KUBECONFIG_FILE% --validate=false"
                     }
                 }
             }
