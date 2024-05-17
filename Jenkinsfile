@@ -44,11 +44,8 @@ pipeline {
                             bat "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
                         }
                         
-                        withEnv(["DOCKER_USERNAME=${env.DOCKER_USERNAME}", "DOCKER_PASSWORD=${env.DOCKER_PASSWORD}"]) {
-                            bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin'
-                            bat "docker push %DOCKER_USERNAME%/red-line-web"
-                            bat "docker push %DOCKER_USERNAME%/red-line-db"
-                        }
+                        bat "docker push %DOCKER_USERNAME%/red-line-web"
+                        bat "docker push %DOCKER_USERNAME%/red-line-db"
                     }
                 }
             }
