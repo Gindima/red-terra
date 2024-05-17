@@ -2,35 +2,48 @@ pipeline {
     agent any
     
     environment {
-        SERVICE_CREDS = credentials('docker-hub-creds')
-        DOCKER_PASSWORD = "${credentials('docker-hub-creds').password}"
+        DOCKER_CREDENTIALS = credentials('docker-hub-creds')
     }
     
     stages {
-        stage('Récupérer le code depuis GitHub') {
+        stage('Checkout') {
             steps {
-                // Récupérer le code depuis GitHub
-                git 'https://github.com/Gindima/alibaba.git'
+                checkout scm
             }
-        }
-        
+        }        
         stage('Construction des images Docker') {
             steps {
-                // Utiliser Docker Compose pour construire les images Docker
-                sh 'docker-compose up'
+                script {
+                    def webImageExists = bat(script: "docker images -q red-line-web", returnStatus: true) == 0
+                    def dbImageExists = bat(script: "docker images -q red-line-db", returnStatus: true) == 0
+                    
+                    if (webImageExists) {
+                        bat "docker rmi red-line-web"
+                    }
+                    if (dbImageExists) {
+                        bat "docker rmi red-line-db"
+                    }
+                    
+                    bat 'docker-compose build'
+                }
             }
         }
         
         stage('Build and Push Docker Images') {
-            steps {                
-                // Tag des images
-                sh "docker tag ligne-rouge-web $SERVICE_CREDS_USR/ligne-rouge-web"
-                sh "docker tag ligne-rouge-db $SERVICE_CREDS_USR/ligne-rouge-db"
-                
-                // Connexion à Docker Hub et push des images
-                sh "docker login -u $SERVICE_CREDS_USR -p $SERVICE_CREDS_PSW"
-                sh "docker push $SERVICE_CREDS_USR/ligne-rouge-web"
-                sh "docker push $SERVICE_CREDS_USR/ligne-rouge-db"
+            steps {
+                script {
+                    def dockerUsername = env.DOCKER_CREDENTIALS_USR
+                    def dockerPassword = env.DOCKER_CREDENTIALS_PSW
+
+                    // Tag des images
+                    bat "docker tag red-line-web ${dockerUsername}/red-line-web"
+                    bat "docker tag red-line-db ${dockerUsername}/red-line-db"
+                    
+                    // Connexion à Docker Hub et push des images
+                    bat "echo ${dockerPassword} | docker login -u ${dockerUsername} --password-stdin"
+                    bat "docker push ${dockerUsername}/red-line-web"
+                    bat "docker push ${dockerUsername}/red-line-db"
+                }
             }
         }
     }
