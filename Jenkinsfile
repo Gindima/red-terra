@@ -38,7 +38,7 @@ pipeline {
                         powershell "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
                         
                         // Connexion à Docker Hub et push des images
-                        powershell "docker login -u ${DOCKER_USERNAME} --password-stdin \\$DOCKER_PASSWORD"
+                        powershell "docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_PASSWORD}"
                         powershell "docker push ${DOCKER_USERNAME}/red-line-web"
                         powershell "docker push ${DOCKER_USERNAME}/red-line-db"
                     }
