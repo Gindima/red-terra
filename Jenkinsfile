@@ -53,13 +53,13 @@ pipeline {
         }
         stage('Déploiement sur Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
                     script {
-                        // Définit la variable d'environnement KUBECONFIG pour pointer vers le fichier kubeconfig temporaire
-                            bat "kubectl apply -f kubernetes/db-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false"
-                            bat "kubectl apply -f kubernetes/db-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false"
-                            bat "kubectl apply -f kubernetes/web-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false"
-                            bat "kubectl apply -f kubernetes/web-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false"
+                        // Spécifiez directement le fichier kubeconfig pour chaque commande kubectl
+                        bat 'kubectl apply -f alibaba/kubernetes/db-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f alibaba/kubernetes/db-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f alibaba/kubernetes/web-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f alibaba/kubernetes/web-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
                     }
                 }
             }
