@@ -34,13 +34,19 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         // Tag des images
-                        powershell "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
-                        powershell "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
+                        def webTagExists = bat(script: "docker images ${DOCKER_USERNAME}/red-line-web", returnStatus: true) == 0
+                        def dbTagExists = bat(script: "docker images ${DOCKER_USERNAME}/red-line-db", returnStatus: true) == 0
                         
-                        // Connexion à Docker Hub et push des images
-                        powershell "docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_PASSWORD}"
-                        powershell "docker push ${DOCKER_USERNAME}/red-line-web"
-                        powershell "docker push ${DOCKER_USERNAME}/red-line-db"
+                        if (!webTagExists) {
+                            bat "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
+                        }
+                        if (!dbTagExists) {
+                            bat "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
+                        }
+                        
+                        bat "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                        bat "docker push ${DOCKER_USERNAME}/red-line-web"
+                        bat "docker push ${DOCKER_USERNAME}/red-line-db"
                     }
                 }
             }
