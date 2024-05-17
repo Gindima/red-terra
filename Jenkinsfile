@@ -53,15 +53,13 @@ pipeline {
         }
         stage('Déploiement sur Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
                     script {
                         // Définit la variable d'environnement KUBECONFIG pour pointer vers le fichier kubeconfig temporaire
-                        withEnv(["KUBECONFIG=${env.KUBECONFIG_FILE}"]) {
                             bat "kubectl apply -f kubernetes/db-deployment.yaml"
                             bat "kubectl apply -f kubernetes/db-service.yaml"
                             bat "kubectl apply -f kubernetes/web-deployment.yaml"
                             bat "kubectl apply -f kubernetes/web-service.yaml"
-                        }
                     }
                 }
             }
