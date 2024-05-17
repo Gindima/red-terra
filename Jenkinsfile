@@ -31,7 +31,7 @@ pipeline {
         
         stage('Build and Push Docker Images') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         // Tag des images
                         bat "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
