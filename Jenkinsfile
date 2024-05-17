@@ -45,5 +45,19 @@ pipeline {
                 }
             }
         }
+        stage('Déploiement sur Kubernetes') {
+            steps {
+                script {
+                    // Naviguer dans le dossier Kubernetes
+                    dir('alibaba/kubernetes') {
+                        // Appliquer les fichiers YAML
+                        bat 'kubectl apply -f db-deployment.yaml'
+                        bat 'kubectl apply -f db-service.yaml'
+                        bat 'kubectl apply -f web-deployment.yaml'
+                        bat 'kubectl apply -f web-service.yaml'
+                    }
+                }
+            }
+        }
     }
 }
