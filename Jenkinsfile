@@ -56,10 +56,10 @@ pipeline {
                 withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
                     script {
                         // Spécifiez directement le fichier kubeconfig pour chaque commande kubectl
-                        bat 'kubectl apply -f alibaba/kubernetes/db-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
-                        bat 'kubectl apply -f alibaba/kubernetes/db-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
-                        bat 'kubectl apply -f alibaba/kubernetes/web-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
-                        bat 'kubectl apply -f alibaba/kubernetes/web-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/db-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/db-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/web-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/web-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
                     }
                 }
             }
