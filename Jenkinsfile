@@ -53,11 +53,10 @@ pipeline {
         stage('Déploiement sur Kubernetes') {
             steps {
                 script {
-                        bat "kubectl apply -f alibaba/kubernetes/db-deployment.yaml"
-                        bat "kubectl apply -f alibaba/kubernetes/db-service.yaml"
-                        bat "kubectl apply -f alibaba/kubernetes/web-deployment.yaml"
-                        bat "kubectl apply -f alibaba/kubernetes/web-service.yaml"
-                    }
+                   bat "kubectl apply -f alibaba/kubernetes/db-deployment.yaml"
+                   bat "kubectl apply -f alibaba/kubernetes/db-service.yaml"
+                   bat "kubectl apply -f alibaba/kubernetes/web-deployment.yaml"
+                   bat "kubectl apply -f alibaba/kubernetes/web-service.yaml"
                 }
             }
         }
