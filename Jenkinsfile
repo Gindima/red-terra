@@ -34,13 +34,13 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         // Tag des images
-                        bat "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
-                        bat "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
+                        powershell "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
+                        powershell "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
                         
                         // Connexion à Docker Hub et push des images
-                        bat "docker login -u ${DOCKER_USERNAME} --password-stdin \\$DOCKER_PASSWORD"
-                        bat "docker push ${DOCKER_USERNAME}/red-line-web"
-                        bat "docker push ${DOCKER_USERNAME}/red-line-db"
+                        powershell "docker login -u ${DOCKER_USERNAME} --password-stdin \\$DOCKER_PASSWORD"
+                        powershell "docker push ${DOCKER_USERNAME}/red-line-web"
+                        powershell "docker push ${DOCKER_USERNAME}/red-line-db"
                     }
                 }
             }
