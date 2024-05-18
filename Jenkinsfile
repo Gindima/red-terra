@@ -3,6 +3,7 @@ pipeline {
     
     environment {
         DOCKER_CREDENTIALS = credentials('docker-hub-creds')
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
     }
     
     stages {
@@ -31,18 +32,35 @@ pipeline {
         
         stage('Build and Push Docker Images') {
             steps {
-                script {
-                    def dockerUsername = env.DOCKER_CREDENTIALS_USR
-                    def dockerPassword = env.DOCKER_CREDENTIALS_PSW
-
-                    // Tag des images
-                    bat "docker tag red-line-web ${dockerUsername}/red-line-web"
-                    bat "docker tag red-line-db ${dockerUsername}/red-line-db"
-                    
-                    // Connexion à Docker Hub et push des images
-                    bat "echo ${dockerPassword} | docker login -u ${dockerUsername} --password-stdin"
-                    bat "docker push ${dockerUsername}/red-line-web"
-                    bat "docker push ${dockerUsername}/red-line-db"
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        // Tag des images
+                        def webTagExists = bat(script: "docker images ${DOCKER_USERNAME}/red-line-web", returnStatus: true) == 0
+                        def dbTagExists = bat(script: "docker images ${DOCKER_USERNAME}/red-line-db", returnStatus: true) == 0
+                        
+                        if (!webTagExists) {
+                            bat "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
+                        }
+                        if (!dbTagExists) {
+                            bat "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
+                        }
+                        
+                        bat "docker push %DOCKER_USERNAME%/red-line-web"
+                        bat "docker push %DOCKER_USERNAME%/red-line-db"
+                    }
+                }
+            }
+        }
+        stage('Déploiement sur Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+                    script {
+                        // Spécifiez directement le fichier kubeconfig pour chaque commande kubectl
+                        bat 'kubectl apply -f kubernetes/db-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/db-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/web-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                        bat 'kubectl apply -f kubernetes/web-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                    }
                 }
             }
         }
