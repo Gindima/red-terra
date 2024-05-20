@@ -3,7 +3,9 @@ pipeline {
     
     environment {
         DOCKER_CREDENTIALS = credentials('docker-hub-creds')
-        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
+        TERRAFORM_DIR = 'terraform'
+        PHP_APP_IMAGE = "${DOCKER_CREDENTIALS_USR}/terra-php_app:latest"
+        MYSQL_IMAGE = "${DOCKER_CREDENTIALS_USR}/terra-mysql:latest"
     }
     
     stages {
@@ -11,58 +13,65 @@ pipeline {
             steps {
                 checkout scm
             }
-        }        
-        stage('Construction des images Docker') {
+        }
+        
+        stage('Check Docker Images') {
             steps {
                 script {
-                    def webImageExists = bat(script: "docker images -q red-line-web", returnStatus: true) == 0
-                    def dbImageExists = bat(script: "docker images -q red-line-db", returnStatus: true) == 0
+                    def phpAppImageExists = bat(script: "docker pull ${PHP_APP_IMAGE} || true", returnStatus: true) == 0
+                    def mysqlImageExists = bat(script: "docker pull ${MYSQL_IMAGE} || true", returnStatus: true) == 0
                     
-                    if (webImageExists) {
-                        bat "docker rmi red-line-web"
+                    if (!phpAppImageExists) {
+                        buildDockerImage('App.Dockerfile', 'terra-php_app')
                     }
-                    if (dbImageExists) {
-                        bat "docker rmi red-line-db"
+                    if (!mysqlImageExists) {
+                        buildDockerImage('Db.Dockerfile', 'terra-mysql')
                     }
-                    
-                    bat 'docker-compose build'
                 }
             }
         }
         
         stage('Build and Push Docker Images') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    script {
-                        // Tag des images
-                        def webTagExists = bat(script: "docker images ${DOCKER_USERNAME}/red-line-web", returnStatus: true) == 0
-                        def dbTagExists = bat(script: "docker images ${DOCKER_USERNAME}/red-line-db", returnStatus: true) == 0
-                        
-                        if (!webTagExists) {
-                            bat "docker tag red-line-web ${DOCKER_USERNAME}/red-line-web"
+                script {
+                    docker.withRegistry('', 'docker-hub-creds') {
+                        if (!bat(script: "docker images -q ${PHP_APP_IMAGE}", returnStatus: true) == 0) {
+                            bat "docker tag terra-php_app:latest ${PHP_APP_IMAGE}"
+                            bat "docker push ${PHP_APP_IMAGE}"
                         }
-                        if (!dbTagExists) {
-                            bat "docker tag red-line-db ${DOCKER_USERNAME}/red-line-db"
+                        if (!bat(script: "docker images -q ${MYSQL_IMAGE}", returnStatus: true) == 0) {
+                            bat "docker tag terra-mysql:latest ${MYSQL_IMAGE}"
+                            bat "docker push ${MYSQL_IMAGE}"
                         }
-                        
-                        bat "docker push %DOCKER_USERNAME%/red-line-web"
-                        bat "docker push %DOCKER_USERNAME%/red-line-db"
                     }
                 }
             }
         }
-        stage('Déploiement sur Kubernetes') {
+        
+        stage('Terraform Init and Apply') {
             steps {
-                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
-                    script {
-                        // Spécifiez directement le fichier kubeconfig pour chaque commande kubectl
-                        bat 'kubectl apply -f kubernetes/db-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
-                        bat 'kubectl apply -f kubernetes/db-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
-                        bat 'kubectl apply -f kubernetes/web-deployment.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
-                        bat 'kubectl apply -f kubernetes/web-service.yaml --kubeconfig="%KUBECONFIG%" --validate=false'
+                dir(TERRAFORM_DIR) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        script {
+                            bat 'terraform init'
+                            bat 'terraform apply -auto-approve'
+                        }
                     }
                 }
             }
         }
     }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
+
+def buildDockerImage(dockerfile, imageName) {
+    bat """
+        docker build -t ${imageName}:latest -f ${dockerfile} .
+        echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin
+    """
 }
