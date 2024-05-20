@@ -52,7 +52,7 @@ pipeline {
             steps {
                 dir(TERRAFORM_DIR) {
                     script {
-                        def terraformPath = "${env.WORKSPACE}/${TERRAFORM_DIR}"
+                        def terraformPath = "${env.WORKSPACE}\${TERRAFORM_DIR}"
                         if (fileExists(terraformPath)) {
                             withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                                 bat "cd ${terraformPath} && terraform init"
