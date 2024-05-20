@@ -19,7 +19,7 @@ resource "kubernetes_deployment" "mysql" {
       spec {
         container {
           name  = "mysql"
-          image = "mouhamed888/red-line-db"
+          image = "yourusername/project_db:latest"
           env {
             name  = "MYSQL_ROOT_PASSWORD"
             value = var.mysql_root_password
