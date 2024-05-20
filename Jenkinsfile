@@ -72,6 +72,5 @@ pipeline {
 def buildDockerImage(dockerfile, imageName) {
     bat """
         docker build -t ${imageName}:latest -f ${dockerfile} .
-        echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin
     """
 }
