@@ -4,8 +4,8 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS = credentials('docker-hub-creds')
         TERRAFORM_DIR = 'terraform'
-        PHP_APP_IMAGE = "${DOCKER_CREDENTIALS_USR}/terra-php_app:latest"
-        MYSQL_IMAGE = "${DOCKER_CREDENTIALS_USR}/terra-mysql:latest"
+        PHP_APP_IMAGE = "${DOCKER_CREDENTIALS_USR}/terra-php_app"
+        MYSQL_IMAGE = "${DOCKER_CREDENTIALS_USR}/terra-mysql"
     }
     
     stages {
@@ -36,11 +36,11 @@ pipeline {
                 script {
                     docker.withRegistry('', 'docker-hub-creds') {
                         if (!bat(script: "docker images -q ${PHP_APP_IMAGE}", returnStatus: true) == 0) {
-                            bat "docker tag terra-php_app:latest ${PHP_APP_IMAGE}"
+                            bat "docker tag terra-php_app ${PHP_APP_IMAGE}"
                             bat "docker push ${PHP_APP_IMAGE}"
                         }
                         if (!bat(script: "docker images -q ${MYSQL_IMAGE}", returnStatus: true) == 0) {
-                            bat "docker tag terra-mysql:latest ${MYSQL_IMAGE}"
+                            bat "docker tag terra-mysql ${MYSQL_IMAGE}"
                             bat "docker push ${MYSQL_IMAGE}"
                         }
                     }
@@ -54,7 +54,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         script {
                             bat 'terraform init'
-                            bat 'terraform apply -auto-approve'
+                            bat 'terraform apply'
                         }
                     }
                 }
@@ -71,6 +71,6 @@ pipeline {
 
 def buildDockerImage(dockerfile, imageName) {
     bat """
-        docker build -t ${imageName}:latest -f ${dockerfile} .
+        docker build -t ${imageName} -f ${dockerfile} .
     """
 }
