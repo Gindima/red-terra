@@ -50,18 +50,10 @@ pipeline {
         
         stage('Terraform Init and Apply') {
             steps {
-                dir(TERRAFORM_DIR) {
+                dir('terraform') {
                     script {
-                        def terraformPath = "${env.WORKSPACE}\${TERRAFORM_DIR}"
-                        if (fileExists(terraformPath)) {
-                            withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                                bat "cd ${terraformPath} && terraform init"
-                                bat "cd ${terraformPath} && terraform apply -auto-approve"
-                            }
-                        } else {
-                            bat "dir"
-                            error "Terraform directory does not exist: ${terraformPath}"
-                        }
+                        bat "terraform init"
+                        bat "terraform apply -auto-approve"
                     }
                 }
             }
