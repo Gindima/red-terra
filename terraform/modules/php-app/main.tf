@@ -19,7 +19,7 @@ resource "kubernetes_deployment" "php_app" {
       spec {
         container {
           name  = "php-app"
-          image = "mouhamed888/terra-php_app:latest"
+          image = "mouhamed888/red-line-web"
           ports {
             container_port = 80
           }

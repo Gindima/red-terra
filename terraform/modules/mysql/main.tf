@@ -19,12 +19,12 @@ resource "kubernetes_deployment" "mysql" {
       spec {
         container {
           name  = "mysql"
-          image = "mouhamed888/terra-mysql:latest"
+          image = "mouhamed888/red-line-db"
           env {
             name  = "MYSQL_ROOT_PASSWORD"
             value = var.mysql_root_password
           }
-          ports {
+          port {
             container_port = 3306
           }
         }
